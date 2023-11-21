@@ -139,7 +139,13 @@ server <- function(input, output, session){
         geom_boxplot() +
         ggtitle(label = gse) +
         theme_bw() +
-        theme(legend.position = "bottom")
+        ggprism::theme_prism(base_size = 10) +
+        paletteer::scale_color_paletteer_d(
+          'ggprism::candy_bright'
+        ) +
+        theme(legend.position = "bottom",
+              axis.text.x = element_text(angle = 45)
+              )
       
     } else if('Source' %in% names(df_meta)){
       
@@ -156,6 +162,11 @@ server <- function(input, output, session){
         geom_boxplot() +
         ggtitle(label = gse) +
         theme_bw() +
+        theme(legend.position = "bottom") +
+        ggprism::theme_prism(base_size = 20) +
+        paletteer::scale_color_paletteer_d(
+          'ggprism::candy_bright'
+        ) +
         theme(legend.position = "bottom")
     }
     
@@ -249,6 +260,72 @@ server <- function(input, output, session){
     
     summary_bulk %>% filter(GSE == gse) %>% 
       pull(Summary)
+    
+  })
+  
+  
+  
+  ## IBD-----------------------------
+  
+  data_expr <- reactive({
+    gse_num <- input$GSE_IBD
+    
+    expSet <- read_csv(
+      glue::glue('./data/IBD_Data/{gse_num}_Pandaomics_expression.csv')
+    )
+    
+    expSet
+  })
+  
+  
+  data_meta <- reactive({
+    gse_num <- input$GSE_IBD
+    
+    metadata <- read_csv(
+      glue::glue('./data/IBD_Data/{gse_num}_metadata_pandaomics.csv')
+    )
+    
+    metadata
+  })
+  
+  output$IBD_gene_expr <- renderPlot({
+    
+    geneSym <- input$gs_IBD |> toupper()
+    gse_num <- input$GSE_IBD
+    
+    expSet <- data_expr()
+    
+    metadata <- data_meta()
+    
+    expSet <- expSet %>% column_to_rownames('gene')
+    p <- identical(metadata$name,colnames(expSet))
+    if(!p) expSet = expSet[,match(metadata$name,colnames(expSet))]
+    expSet <- log2(expSet+ 1)
+    
+    top_gene_df <- expSet %>% as.data.frame() %>% 
+      dplyr::filter(rownames(.) == geneSym) %>%
+      t() %>%
+      data.frame() %>%
+      tibble::rownames_to_column("name") %>%
+      dplyr::inner_join(dplyr::select(
+        metadata,
+        name,
+        group
+      ), by = join_by(name))
+    
+    
+    ggplot(top_gene_df, 
+           aes_string(x = 'group', y = geneSym, 
+                      color = 'group')) +
+      geom_jitter(width = 0.2, height = 0) + 
+      geom_boxplot() +
+      # theme_classic() +
+      ggtitle(label = gse_num) +
+      ggprism::theme_prism(base_size = 20) +
+      paletteer::scale_color_paletteer_d(
+        'ggprism::candy_bright'
+      )
+    
     
   })
   
