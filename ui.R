@@ -4,6 +4,7 @@
 # library packages --------------------------------------------------------
 
 library(shiny)
+library(bslib)
 
 library(plotly)
 
@@ -69,7 +70,7 @@ ui <- navbarPage("Bulk RNASeq Expression",
         8,
         tabsetPanel(
           tabPanel("Plot", plotOutput("plot2")),
-          tabPanel("Summary", textOutput("text1"))
+          tabPanel("Summary", uiOutput("text1"))
         )
         # plotOutput('plot2')
       )

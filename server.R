@@ -78,7 +78,7 @@ server <- function(input, output, session){
       scale_size(trans = 'reverse') +
       theme(axis.text = element_text(face = 'bold',size=10))
     
-  })
+  }, width = 'auto', height = 'auto', res = 72)
   
   # plotly plot for plot1
   
@@ -250,16 +250,24 @@ server <- function(input, output, session){
   
   
   # render summary text for GSE
-  output$text1 <- renderText({
+  output$text1 <- renderUI({
     gse <- input$GSEnum
     
     summary_bulk <- readxl::read_excel(
       './data/Summary_for_bulk_RNASeq.xlsx'
-    ) %>% 
-      dplyr::rename('GSE'='...1')
+    )
     
-    summary_bulk %>% filter(GSE == gse) %>% 
+    summary_text <- summary_bulk %>% filter(GSE == gse) %>% 
       pull(Summary)
+    
+    hlink <-  summary_bulk %>% filter(GSE == gse) %>% 
+      pull(PandaOmics)
+    
+    # paste0(summary_text, '\n', '\n',hlink)
+    
+    HTML(glue::glue(
+      '<p> {summary_text} <br> <br> <a href="{hlink}">PandaOmics</a></p>')
+      )
     
   })
   
