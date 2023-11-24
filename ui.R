@@ -1,6 +1,3 @@
-
-
-
 # library packages --------------------------------------------------------
 
 library(shiny)
@@ -10,16 +7,25 @@ library(plotly)
 
 
 
+# functions  --------------------------------------------------------------
+
+
+
 # UI ----------------------------------------------------------------------
 
 
 ui <- navbarPage("Bulk RNASeq Expression",
   # theme = shinythemes::themeSelector(),
-  theme = shinythemes::shinytheme('united'),
+  theme = shinythemes::shinytheme("united"),
   # theme = bslib::bs_theme(bootswatch = 'united',
-  #                         # primary = "#E69F00"
-  #                         ),
-  
+  #                         # 'navbar_bg' = "#25443B"
+  #                         ) |>
+  #   bslib::bs_add_rules(
+  #     rules = ".navbar.navbar-default {
+  #                       background-color: $primary !important;
+  #                   }"
+  #   ),
+
   windowTitle = "GEO Shiny",
   
   tabPanel(
@@ -30,7 +36,7 @@ ui <- navbarPage("Bulk RNASeq Expression",
       sidebarPanel(
         textInput(
           inputId = "geneSymbol",
-          label = "Input Gene Symbol",
+          label = "Input Gene Symbol: ",
           value = "IRF4"
         ),
         width = 3
@@ -56,6 +62,13 @@ ui <- navbarPage("Bulk RNASeq Expression",
     
     hr(),
     
+    fluidRow(column(8,
+      h2("Single GSE Expression"),
+      offset = 3
+    )),
+    
+    tags$br(),
+    
     fluidRow(
       column(
         3,
@@ -69,7 +82,11 @@ ui <- navbarPage("Bulk RNASeq Expression",
       column(
         8,
         tabsetPanel(
-          tabPanel("Plot", plotOutput("plot2")),
+          tabPanel("Plot", plotOutput("plot2", 
+                                      # width = '60%'
+                                      width = 800,
+                                      height = 600
+                                      )),
           tabPanel("Summary", uiOutput("text1"))
         )
         # plotOutput('plot2')
@@ -79,43 +96,58 @@ ui <- navbarPage("Bulk RNASeq Expression",
     hr(),
     
     fluidRow(
-      column(10,
-        h4("Expression by Tissue / Cell Type"),
+      column(3, textOutput('Here')), 
+      column(7,
+        h4("Expression in Different Tissues"),
         plotOutput("tissue_plot"),
-        offset = 2,
-        plotOutput("cell_plot")
+        # offset = 2,
+        # plotOutput("cell_plot")
+      )
+    ),
+    
+    fluidRow(
+      column(3, textOutput('Here. ')),
+      column(7,
+             h4("Expression in Different Cell Type"),
+             # plotOutput("tissue_plot"),
+             # offset = 2,
+             plotOutput("cell_plot")
       )
     )
+    
+    
   ),
-  
-  
+
+
   # UI for IBD
-  
-  tabPanel("IBD",
-           sidebarLayout(
-             sidebarPanel(
-               textInput(inputId = 'gs_IBD', 
-                         label = 'Input Gene Symbol',
-                         value = 'IRF4'
-               ),
-               
-               selectInput(inputId='GSE_IBD', 
-                           label = 'IBD GSE number',
-                           choices = 
-                             c('GSE59071', 'GSE23597', 'GSE73661',
-                               'GSE87466'
-                               )
-               ), 
-               
-               width = 3
-             ),
-             
-             mainPanel(tabsetPanel(
-               tabPanel("Plot", plotOutput("IBD_gene_expr")),
-               tabPanel("PCA")
-             ))
-           )
-           ),
+
+  tabPanel(
+    "IBD",
+    sidebarLayout(
+      sidebarPanel(
+        textInput(
+          inputId = "gs_IBD",
+          label = "Input Gene Symbol",
+          value = "IRF4"
+        ),
+        selectInput(
+          inputId = "GSE_IBD",
+          label = "IBD GSE number",
+          choices =
+            c(
+              "GSE59071", "GSE23597", "GSE73661",
+              "GSE87466"
+            )
+        ),
+        width = 3
+      ),
+      mainPanel(h3('IBD gene Expression'),
+                tabsetPanel(
+        tabPanel("Plot", plotOutput("IBD_gene_expr")),
+        tabPanel("PCA")
+      ))
+    )
+  ),
   navbarMenu(
     "More",
     tabPanel("Others")
