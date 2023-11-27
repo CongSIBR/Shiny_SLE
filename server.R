@@ -16,7 +16,7 @@ library(plotly)
 
 # load DESeq2 data --------------------------------------------------------
 
-# should place in global.R
+# should be placed in global.R
 combined_DESeq2_res <- readRDS("./data/combined_DESeq2_res.rds")
 
 # 从以前文件拷过来的
@@ -44,7 +44,7 @@ server <- function(input, output, session) {
   # })
 
 
-  # below for render* script
+  # below are render* script
 
   output$plot1 <- renderPlot(
     {
@@ -118,7 +118,9 @@ server <- function(input, output, session) {
       theme(axis.text = element_text(face = "bold", size = 8)) +
       ylab("GSE Number")
 
-    plotly::ggplotly(p1)
+    plotly::ggplotly(p1,
+                     tooltip = c('x', 'color')
+                     )
   })
 
 
@@ -192,7 +194,7 @@ server <- function(input, output, session) {
   })
 
 
-  # table1
+  # table1 for GSE annotation
 
   output$table1 <- renderTable(
     gse_annotation

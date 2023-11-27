@@ -16,15 +16,15 @@ library(plotly)
 
 ui <- navbarPage("Bulk RNASeq Expression",
   # theme = shinythemes::themeSelector(),
-  theme = shinythemes::shinytheme("united"),
-  # theme = bslib::bs_theme(bootswatch = 'united',
-  #                         # 'navbar_bg' = "#25443B"
-  #                         ) |>
-  #   bslib::bs_add_rules(
-  #     rules = ".navbar.navbar-default {
-  #                       background-color: $primary !important;
-  #                   }"
-  #   ),
+  # theme = shinythemes::shinytheme("united"),
+  theme = bslib::bs_theme(bootswatch = 'united',
+                          # 'navbar_bg' = "#25443B"
+                          ) |>
+    bslib::bs_add_rules(
+      rules = ".navbar.navbar-default {
+                        background-color: #320638 !important;
+                    }"
+    ),
 
   windowTitle = "GEO Shiny",
   
@@ -44,7 +44,7 @@ ui <- navbarPage("Bulk RNASeq Expression",
       
       mainPanel(
         h2("DEGs across 33 GSE datasets"),
-        h4("note that: not all 33 datasets exists!"),
+        h4("note that: not all gene exists in all 33 datasets!"),
         # tabsetPanel(
         #   tabPanel("Plot", plotOutput("plot1")),
         #   tabPanel("Table", tableOutput("table1"))
@@ -55,7 +55,8 @@ ui <- navbarPage("Bulk RNASeq Expression",
     fluidRow(
       column(8,
         # plotOutput("plot1"),
-        plotlyOutput("plot1_plotly"),
+        # plotlyOutput("plot1_plotly"),
+        tabsetPanel(tabPanel('Plot', plotlyOutput("plot1_plotly"))),
         offset = 3
       )
     ),
