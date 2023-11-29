@@ -45,6 +45,10 @@ server <- function(input, output, session) {
 
 
   # below are render* script
+  
+  gene_event <- eventReactive(input$click1,
+                              {input$geneSymbol}
+                              )
 
   output$plot1 <- renderPlot(
     {
@@ -87,7 +91,7 @@ server <- function(input, output, session) {
   # plotly plot for plot1
 
   output$plot1_plotly <- renderPlotly({
-    gene <- input$geneSymbol
+    gene <- gene_event()
     geneSym <- toupper(gene)
 
     df <- combined_DESeq2_res %>%
@@ -116,7 +120,8 @@ server <- function(input, output, session) {
       ) +
       scale_size(trans = "reverse") +
       theme(axis.text = element_text(face = "bold", size = 8)) +
-      ylab("GSE Number")
+      ylab("GSE Number") +
+      ggtitle(glue::glue('{geneSym} Diff Expression'))
 
     plotly::ggplotly(p1,
                      tooltip = c('x', 'color')
@@ -375,6 +380,29 @@ server <- function(input, output, session) {
         "ggprism::candy_bright"
       )
   })
+  
+  ## mail-----------------------------
+  
+  observeEvent(input$send, {
+    mail_res <- sendmailR::sendmail(
+      from = '',
+      to = as.character(input$user_mail),
+      subject = 'Gene Expression',
+      msg = mime_part('get it'),
+      engineopts = list(username = '发送邮箱', password = '授权码'),
+      control = list(smtpServer = 'smtp.163.com:465', verbose = TRUE)
+    )
+    
+    if(!is.null(mail_res)){
+      output$mailout <- renderText('Mail Sended!')
+    } else {
+      output$mailout <- renderText('Mail Send fail!')
+    }
+  })
+  
+  
+  
+  
 }
 
 

@@ -1,3 +1,5 @@
+
+
 # library packages --------------------------------------------------------
 
 library(shiny)
@@ -5,6 +7,9 @@ library(bslib)
 
 library(plotly)
 
+# 不错的框架
+# library(golem)
+# library(rhino)
 
 
 # functions  --------------------------------------------------------------
@@ -39,6 +44,11 @@ ui <- navbarPage("Bulk RNASeq Expression",
           label = "Input Gene Symbol: ",
           value = "IRF4"
         ),
+        
+        actionButton(inputId = 'click1',
+                     label = 'GO!'
+                     ),
+        
         width = 3
       ),
       
@@ -149,6 +159,9 @@ ui <- navbarPage("Bulk RNASeq Expression",
       ))
     )
   ),
+  
+  
+  
   navbarMenu(
     "More",
     tabPanel("Others")
