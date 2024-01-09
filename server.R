@@ -45,10 +45,10 @@ server <- function(input, output, session) {
 
 
   # below are render* script
-  
-  gene_event <- eventReactive(input$click1,
-                              {input$geneSymbol}
-                              )
+
+  gene_event <- eventReactive(input$click1, {
+    input$geneSymbol
+  })
 
   output$plot1 <- renderPlot(
     {
@@ -121,11 +121,11 @@ server <- function(input, output, session) {
       scale_size(trans = "reverse") +
       theme(axis.text = element_text(face = "bold", size = 8)) +
       ylab("GSE Number") +
-      ggtitle(glue::glue('{geneSym} Diff Expression'))
+      ggtitle(glue::glue("{geneSym} Diff Expression"))
 
     plotly::ggplotly(p1,
-                     tooltip = c('x', 'color')
-                     )
+      tooltip = c("x", "color")
+    )
   })
 
 
@@ -230,11 +230,10 @@ server <- function(input, output, session) {
       left_join(bulk_pair,
         by = c("rowname" = "name")
       ) %>%
-      arrange(desc(.data[[geneSym]])) %>% 
+      arrange(desc(.data[[geneSym]])) %>%
       mutate(rowname = fct_reorder(rowname, .data[[geneSym]],
-                                   .desc = TRUE
-                                   )
-             )
+        .desc = TRUE
+      ))
 
     ggplot(d_p, aes(
       # x = fct_reorder(rowname, .data[[geneSym]],
@@ -380,33 +379,154 @@ server <- function(input, output, session) {
         "ggprism::candy_bright"
       )
   })
-  
-  ## mail-----------------------------
-  
-  observeEvent(input$send, {
-    mail_res <- sendmailR::sendmail(
-      from = '',
-      to = as.character(input$user_mail),
-      subject = 'Gene Expression',
-      msg = mime_part('get it'),
-      engineopts = list(username = '发送邮箱', password = '授权码'),
-      control = list(smtpServer = 'smtp.163.com:465', verbose = TRUE)
-    )
+
+
+  # HPA ---------------------------------------------
+
+  hpa_isoform_immuncells_M <- reactive({
+    geneSym <- input$hpa_trans_gene |> toupper()
+
+    hpa_transcript_rna_immunecells %>%
+      filter(SYMBOL == geneSym) %>%
+      dplyr::select(enstid, starts_with("TPM")) %>%
+      column_to_rownames("enstid") -> M
     
-    if(!is.null(mail_res)){
-      output$mailout <- renderText('Mail Sended!')
-    } else {
-      output$mailout <- renderText('Mail Send fail!')
+    if (!is.data.frame(M)) {
+      validate(paste0("'", geneSym, "' is not a data frame"))
     }
+
+    M
+  })
+
+  output$hpa_isoform_immuncells_p1 <- renderPlot({
+    geneSym <- input$hpa_trans_gene |> toupper()
+
+    hpa_transcript_rna_immunecells %>%
+      filter(SYMBOL == geneSym) %>%
+      dplyr::select(enstid, starts_with("TPM")) %>%
+      column_to_rownames("enstid") -> M
+
+    M %>%
+      rownames_to_column() %>%
+      pivot_longer(cols = -rowname) %>%
+      distinct() %>%
+      separate_wider_delim(
+        cols = name, delim = ".",
+        names = c("foo", "celltype", "sample"),
+        cols_remove = FALSE
+      ) %>%
+      dplyr::mutate(logvalue = log2(value + 1)) -> df_p
+
+
+    ggplot(df_p, aes(
+      x = celltype, y = logvalue,
+      fill = rowname,
+      color = rowname
+    )) +
+      geom_boxplot() +
+      ggprism::theme_prism() +
+      ggprism::scale_colour_prism(palette = "colors") +
+      ggprism::scale_fill_prism(palette = "colors") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      ylab("logTPM") -> p1
+
+    p1
+  })
+
+
+  output$hpa_isoform_immuncells_p2 <- renderPlot({
+    
+    geneSym <- input$hpa_trans_gene |> toupper()
+    
+    colors_f <- circlize::colorRamp2(c(-3, 0, 3),
+      c("navy", "white", "firebrick3"),
+      transparency = 0
+    )
+
+    ComplexHeatmap::Heatmap(log2(t(hpa_isoform_immuncells_M()) + 1),
+      name = glue::glue("{geneSym}"),
+      na_col = "gray",
+      border_gp = grid::gpar(col = "black"),
+      show_row_dend = T,
+      show_column_dend = F,
+      cluster_columns = F,
+      cluster_rows = T,
+      clustering_distance_columns = "euclidean",
+      clustering_distance_rows = "euclidean",
+      clustering_method_rows = "complete",
+      clustering_method_columns = "complete",
+      # col = colors_f,
+      column_names_rot = 90,
+      show_column_names = TRUE,
+      show_row_names = TRUE,
+      width = unit(5, "cm"),
+      row_names_gp = grid::gpar(fontsize = 4),
+      # left_annotation = ha_row,
+      show_heatmap_legend = TRUE,
+      # cell_fun = function(j, i, x, y, width, height, fill) {
+      #   grid.text(round(M[i, j], 3), x, y, gp = gpar(fontsize = 4))
+      # }
+    )
   })
   
   
+  output$hpa_isoform_immuncells_p3 <- renderPlot({
+    
+    M2 <- log2(hpa_isoform_immuncells_M() + 1)
+    
+    # M2 <- M2[rowSums(M2) > 1, ]
+    keep <- rowSums(M2 >= 1) >= 3
+    M2 <- M2[keep, ]
+    
+    M2 %>% rownames_to_column() %>% 
+      pivot_longer(cols = -rowname) %>% 
+      distinct() %>% 
+      separate_wider_delim(cols = name, delim = '.',
+                           names = c('foo',  'celltype', 'sample'),
+                           cols_remove = FALSE
+      ) -> df_p2
+    
+    ggplot(df_p2, aes(x = celltype, y = value, 
+                      fill = rowname,
+                      color = rowname)) +
+      geom_boxplot() +
+      ggprism::theme_prism() +
+      ggprism::scale_colour_prism(palette = "colors") +
+      ggprism::scale_fill_prism(palette = "colors") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      ylab('logTPM') -> p2
+    
+    p2
+  })
   
   
+  output$download1 <- downloadHandler(
+    filename = function() {
+      paste0(input$hpa_trans_gene, ".csv")
+    },
+    content = function(file) {
+      write.csv(hpa_isoform_immuncells_M(), file)
+    }
+  )
+
+  ## mail-----------------------------
+
+  observeEvent(input$send, {
+    mail_res <- sendmailR::sendmail(
+      from = "",
+      to = as.character(input$user_mail),
+      subject = "Gene Expression",
+      msg = mime_part("get it"),
+      engineopts = list(username = "发送邮箱", password = "授权码"),
+      control = list(smtpServer = "smtp.163.com:465", verbose = TRUE)
+    )
+
+    if (!is.null(mail_res)) {
+      output$mailout <- renderText("Mail Sended!")
+    } else {
+      output$mailout <- renderText("Mail Send fail!")
+    }
+  })
 }
-
-
-
-
 
 

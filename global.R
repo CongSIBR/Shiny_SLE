@@ -9,6 +9,11 @@ library(stringr)
 
 combined_DESeq2_res <- readRDS('./data/combined_DESeq2_res.rds')
 
+
+hpa_transcript_rna_immunecells <- readr::read_csv(
+  './data/HPA/hpa_transcript_rna_immunecells.csv'
+)
+
 # 从以前文件拷过来的
 # load('./data/pandaomics_meta_expr_data.Rdata')
 
