@@ -10,6 +10,7 @@ library(plotly)
 # 不错的框架
 # library(golem)
 # library(rhino)
+# require(periscope)
 
 
 # functions  --------------------------------------------------------------
@@ -19,7 +20,7 @@ library(plotly)
 # UI ----------------------------------------------------------------------
 
 
-ui <- navbarPage("Bulk RNASeq Expression",
+ui <- navbarPage("SIBR Expression Explorer",
   # theme = shinythemes::themeSelector(),
   # theme = shinythemes::shinytheme("united"),
   theme = bslib::bs_theme(bootswatch = 'united',
@@ -160,6 +161,35 @@ ui <- navbarPage("Bulk RNASeq Expression",
     )
   ),
   
+  
+  # UI for HPA
+  tabPanel(
+    'HPA',
+    
+    sidebarLayout(
+      sidebarPanel(
+        textInput(
+          inputId = "hpa_trans_gene",
+          label = "Input Gene Symbol",
+          value = "IRF4"
+        ),
+        
+        downloadButton(outputId = 'download1',
+                       label = 'Download',
+                       icon = shiny::icon("download")
+                       )
+      ),
+      
+      mainPanel(h3('HPA immunecells isoform Expression'),
+                tabsetPanel(
+                  tabPanel('BoxPot', plotOutput('hpa_isoform_immuncells_p1')),
+                  tabPanel('Heatmap', plotOutput('hpa_isoform_immuncells_p2')),
+                  tabPanel('BoxPot_Fliter', 
+                           plotOutput('hpa_isoform_immuncells_p3'))
+                )
+                )
+    )
+  ),
   
   
   navbarMenu(
