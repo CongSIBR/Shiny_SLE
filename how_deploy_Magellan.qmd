@@ -1,0 +1,36 @@
+---
+title: "how to deploy Shiny on Magellan"
+format: html
+---
+
+
+
+## how to deploy Shiny on Magellan
+
+> https://kb-am1.sanofi.com/pages/viewpage.action?pageId=35243894
+
+> https://kb-am1.sanofi.com/pages/viewpage.action?pageId=35235361
+
+
+
+
+```{bash}
+
+# 把对应的文件夹传到/cloud-home/ShinyApps/4.3.3下即可
+
+
+chmod +x ~/ShinyApps/<R_VERSION>/<APP_VERSION>
+
+
+chown -R 1000:1000 ~/ShinyApps/<R_VERSION>/<APP_VERSION>
+
+
+
+# https://magellan-shiny.sanofi.com/<USER_ID>/<R_VERSION>/<APP_NAME>
+```
+
+
+
+
+
+
