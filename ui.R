@@ -1,5 +1,3 @@
-
-
 # library packages --------------------------------------------------------
 
 library(shiny)
@@ -23,16 +21,17 @@ library(plotly)
 ui <- navbarPage("SIBR Expression Explorer",
   # theme = shinythemes::themeSelector(),
   # theme = shinythemes::shinytheme("united"),
-  theme = bslib::bs_theme(bootswatch = 'united',
-                          # 'navbar_bg' = "#25443B"
-                          ) |>
+  theme = bslib::bs_theme(
+    bootswatch = "united",
+    # 'navbar_bg' = "#25443B"
+  ) |>
     bslib::bs_add_rules(
       rules = ".navbar.navbar-default {
                         background-color: #320638 !important;
                     }"
     ),
-
-  windowTitle = "GEO Shiny",
+  
+  windowTitle = "SIBR Shiny",
   
   tabPanel(
     "SLE",
@@ -45,14 +44,12 @@ ui <- navbarPage("SIBR Expression Explorer",
           label = "Input Gene Symbol: ",
           value = "IRF4"
         ),
-        
-        actionButton(inputId = 'click1',
-                     label = 'GO!'
-                     ),
-        
+        actionButton(
+          inputId = "click1",
+          label = "GO!"
+        ),
         width = 3
       ),
-      
       mainPanel(
         h2("DEGs across 33 GSE datasets"),
         h4("note that: not all gene exists in all 33 datasets!"),
@@ -62,25 +59,20 @@ ui <- navbarPage("SIBR Expression Explorer",
         # )
       )
     ),
-    
     fluidRow(
       column(8,
         # plotOutput("plot1"),
         # plotlyOutput("plot1_plotly"),
-        tabsetPanel(tabPanel('Plot', plotlyOutput("plot1_plotly"))),
+        tabsetPanel(tabPanel("Plot", plotlyOutput("plot1_plotly"))),
         offset = 3
       )
     ),
-    
     hr(),
-    
     fluidRow(column(8,
       h2("Single GSE Expression"),
       offset = 3
     )),
-    
     tags$br(),
-    
     fluidRow(
       column(
         3,
@@ -90,46 +82,126 @@ ui <- navbarPage("SIBR Expression Explorer",
           choices = chioce1
         )
       ),
-      
       column(
         8,
         tabsetPanel(
-          tabPanel("Plot", plotOutput("plot2", 
-                                      # width = '60%'
-                                      width = 800,
-                                      height = 600
-                                      )),
+          tabPanel("Plot", plotOutput("plot2",
+            # width = '60%'
+            width = 800,
+            height = 600
+          )),
           tabPanel("Summary", uiOutput("text1"))
         )
         # plotOutput('plot2')
       )
     ),
-    
     hr(),
-    
     fluidRow(
-      column(3, textOutput('Here')), 
-      column(7,
+      column(3, textOutput("Here")),
+      column(
+        7,
         h4("Expression in Different Tissues"),
         plotOutput("tissue_plot"),
         # offset = 2,
         # plotOutput("cell_plot")
       )
     ),
-    
     fluidRow(
-      column(3, textOutput('Here. ')),
-      column(7,
-             h4("Expression in Different Cell Type"),
-             # plotOutput("tissue_plot"),
-             # offset = 2,
-             plotOutput("cell_plot")
+      column(3, textOutput("Here. ")),
+      column(
+        7,
+        h4("Expression in Different Cell Type"),
+        # plotOutput("tissue_plot"),
+        # offset = 2,
+        plotOutput("cell_plot")
       )
     )
-    
-    
   ),
 
+
+  # UI for single cell RNA expression
+
+  tabPanel(
+    title = 'scRNA',
+    
+    sidebarLayout(
+      sidebarPanel(
+        textInput(
+          inputId = "GeneName",
+          label = "Input Gene Symbol: ",
+          value = "CAMK4"
+        ),
+        
+        # actionButton(
+        #   inputId = "click2",
+        #   label = "Click!"
+        # ),
+        
+        tags$br(),
+        
+        selectInput(
+          inputId = "singleGSE",
+          label = "Choose GSE:",
+          choices = chioce2
+        ),
+        width = 3
+      ),
+      
+      mainPanel(
+        h3("Gene Expression in IBD studies"),
+        # tabsetPanel(
+        #   tabPanel("Plot", plotOutput("plot1")),
+        #   tabPanel("Table", tableOutput("table1"))
+        # )
+        column(
+          8,
+          tabsetPanel(
+            tabPanel("Plot", plotOutput("scPlot1",
+                                        # width = '60%'
+                                        width = 800,
+                                        height = 600
+            )),
+            # tabPanel("Summary", uiOutput("text1"))
+          )
+        )
+      )
+    ),
+    
+    hr(),
+    
+    fluidRow(column(8,
+                    h3("Gene Expression in SLE studies"),
+                    offset = 3
+    )),
+    
+    tags$br(),
+    
+    fluidRow(
+      column(
+        3,
+        h5("Select different GSE"),
+        selectInput(
+          inputId = "singleGSE2", 
+          label = "Choose GSE:",
+          choices = chioce2
+        )
+      ),
+      column(
+        8,
+        tabsetPanel(
+          tabPanel("Plot", plotOutput("scPlot2",
+                                      # width = '60%'
+                                      width = 800,
+                                      height = 600
+          )),
+          tabPanel("Summary")
+        )
+      )
+    ),
+    
+    hr(),
+    
+  ),
 
   # UI for IBD
 
@@ -153,19 +225,20 @@ ui <- navbarPage("SIBR Expression Explorer",
         ),
         width = 3
       ),
-      mainPanel(h3('IBD gene Expression'),
-                tabsetPanel(
-        tabPanel("Plot", plotOutput("IBD_gene_expr")),
-        tabPanel("PCA")
-      ))
+      mainPanel(
+        h3("IBD gene Expression"),
+        tabsetPanel(
+          tabPanel("Plot", plotOutput("IBD_gene_expr")),
+          tabPanel("PCA")
+        )
+      )
     )
   ),
-  
-  
+
+
   # UI for HPA
   tabPanel(
-    'HPA',
-    
+    "HPA",
     sidebarLayout(
       sidebarPanel(
         textInput(
@@ -173,31 +246,27 @@ ui <- navbarPage("SIBR Expression Explorer",
           label = "Input Gene Symbol",
           value = "IRF4"
         ),
-        
-        downloadButton(outputId = 'download1',
-                       label = 'Download',
-                       icon = shiny::icon("download")
-                       )
+        downloadButton(
+          outputId = "download1",
+          label = "Download",
+          icon = shiny::icon("download")
+        )
       ),
-      
-      mainPanel(h3('HPA immunecells isoform Expression'),
-                tabsetPanel(
-                  tabPanel('BoxPot', plotOutput('hpa_isoform_immuncells_p1')),
-                  tabPanel('Heatmap', plotOutput('hpa_isoform_immuncells_p2')),
-                  tabPanel('BoxPot_Fliter', 
-                           plotOutput('hpa_isoform_immuncells_p3'))
-                )
-                )
+      mainPanel(
+        h3("HPA immunecells isoform Expression"),
+        tabsetPanel(
+          tabPanel("BoxPot", plotOutput("hpa_isoform_immuncells_p1")),
+          tabPanel("Heatmap", plotOutput("hpa_isoform_immuncells_p2")),
+          tabPanel(
+            "BoxPot_Fliter",
+            plotOutput("hpa_isoform_immuncells_p3")
+          )
+        )
+      )
     )
   ),
-  
-  
   navbarMenu(
     "More",
     tabPanel("Others")
   )
 )
-
-
-
-
