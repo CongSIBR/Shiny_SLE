@@ -1,0 +1,23 @@
+
+
+
+
+
+{
+    "instance": "normal",
+    "r_sys_lib": "RLib_Minimal",
+    "users": [
+        {
+            "name": "ROLE_ANONYMOUS_USER",
+            "principal": false
+        },
+        {
+            "name": "ROLE_USER",
+            "principal": false
+        }
+    ]
+}
+
+
+
+
