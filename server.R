@@ -17,7 +17,7 @@ library(plotly)
 # load DESeq2 data --------------------------------------------------------
 
 # should be placed in global.R
-combined_DESeq2_res <- readRDS("./data/combined_DESeq2_res.rds")
+# combined_DESeq2_res <- readRDS("./data/combined_DESeq2_res.rds")
 
 # 从以前文件拷过来的
 # load('./data/pandaomics_meta_expr_data.Rdata')
@@ -28,7 +28,7 @@ combined_DESeq2_res <- readRDS("./data/combined_DESeq2_res.rds")
 
 # functions for global use
 
-thematic::thematic_shiny(font = "auto")
+# thematic::thematic_shiny(font = "auto")
 
 
 # server ------------------------------------------------------------------
@@ -508,6 +508,50 @@ server <- function(input, output, session) {
       write.csv(hpa_isoform_immuncells_M(), file)
     }
   )
+  
+  
+  # scRNA ---------------------------------------------
+  
+  output$scPlot1 <- renderPlot({
+    
+    scgene <- input$GeneName |> toupper()
+    scGSE <- input$singleGSE
+    
+    p_data <- vroom::vroom(glue::glue('~/Downloads/{scGSE}_sc_meanCI.csv'),
+                           delim = ',',
+                           show_col_types = NULL
+                           )
+    condition1 <- names(p_data)[[2]]
+    celltype <- names(p_data)[[1]]
+    genemean <- paste0(scgene, '_mean')
+    genelow <- paste0(scgene, '_low')
+    geneup <- paste0(scgene, '_up')
+    
+    p_data <- p_data %>% 
+      dplyr::select(1:2, starts_with({{scgene}})) %>% 
+      dplyr::rename('Condition' = all_of(condition1),
+                    'CellType' = all_of(celltype)
+                    )
+    
+    ggplot(p_data, aes(x = CellType, 
+                       y = .data[[genemean]], 
+                       fill = Condition)) +
+      geom_col(position = 'dodge') +
+      geom_errorbar(aes(x = CellType, 
+                        ymin = .data[[genelow]], 
+                        ymax = .data[[geneup]]),
+                    width=0.4, colour="orange", 
+                    alpha=0.9, linewidth=1,
+                    position = position_dodge(.9)
+      ) +
+      paletteer::scale_fill_paletteer_d('ggsci::category20_d3') +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 90))
+    
+    
+  })
+  
+  
 
   ## mail-----------------------------
 
