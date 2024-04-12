@@ -1,0 +1,146 @@
+---
+title: "Gene Expression"
+subtitle: "Explore Gene Expression in scRNA datasets"
+author: DDS
+format: 
+  pptx: 
+    incremental: FALSE
+    reference-doc: template.pptx
+---
+
+
+#### gene Expression distribution in PBMC(PMID35383111) {.smaller}
+
+```{r}
+#| include: false
+
+library(tidyverse)
+```
+
+
+```{r}
+# input your gene here
+target_gene <- 'CAMK4'
+
+
+# plot GSE expression bar plot
+make_plot <- function(gene, gse) {
+  scgene <- gene
+  scGSE <- gse
+
+  p_data <- vroom::vroom(glue::glue("./data/talk2data/{scGSE}_sc_meanCI.csv"),
+    delim = ",",
+    show_col_types = NULL
+  )
+  condition1 <- names(p_data)[[2]]
+  celltype <- names(p_data)[[1]]
+  genemean <- paste0(scgene, "_mean")
+  genelow <- paste0(scgene, "_low")
+  geneup <- paste0(scgene, "_up")
+
+  p_data <- p_data %>%
+    dplyr::select(1:2, starts_with({{ scgene }})) %>%
+    dplyr::rename(
+      "Condition" = all_of(condition1),
+      "CellType" = all_of(celltype)
+    )
+
+  ggplot(p_data, aes(
+    x = CellType,
+    y = .data[[genemean]],
+    fill = Condition
+  )) +
+    geom_col(position = "dodge") +
+    geom_errorbar(
+      aes(
+        x = CellType,
+        ymin = .data[[genelow]],
+        ymax = .data[[geneup]]
+      ),
+      width = 0.4, colour = "orange",
+      alpha = 0.9, linewidth = 1,
+      position = position_dodge(.9)
+    ) +
+    paletteer::scale_fill_paletteer_d("ggsci::category20_d3") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90))
+}
+
+
+```
+
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'PMID35383111'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in naïve/memory/effector T cells.
+
+::: footer
+Learn more: [talk2data](https://talk2data.pharma.aventis.com/t2d_balancer/)
+:::
+
+
+#### Expression distribution of CAMK4 in cells of the human intestinal tract (PMID34497389)
+
+
+```{r}
+# maybe we can use column
+```
+
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE202052'
+          )
+```
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE202052'
+          )
+```
+
+:::
+
+::::
+
+
+- `r target_gene` expression is enhanced in
+
+
+#### Expression distribution of CAMK4 in IBD patient samples
+
+##### GSE164985/colonic mucosa
+
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE164985'
+          )
+```
+
+- `r target_gene` expression is enhanced in
+
+
+---
+
+THANK YOU!!
+
+
+
+
+
+
+

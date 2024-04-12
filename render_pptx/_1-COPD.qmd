@@ -1,0 +1,82 @@
+
+### COPD {background-color="#7A00E6"}
+
+#### Expression distribution of `r target_gene` in COPD patients(GSE168191/lung) {.smaller}
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE168191'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'GSE168191')
+```
+
+
+:::
+
+
+
+#### Expression distribution of `r target_gene` in COPD patients(GSE136831/lung) {.smaller}
+
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE136831'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'GSE136831')
+```
+
+
+:::
+
+
+#### Expression distribution of `r target_gene` in COPD patients(GSE173896/lung) {.smaller}
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE173896'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'GSE173896')
+```
+
+
+:::
+

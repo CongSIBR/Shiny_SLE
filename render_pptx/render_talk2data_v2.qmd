@@ -1,0 +1,262 @@
+---
+title: "Gene Expression"
+subtitle: "Explore Gene Expression in scRNA datasets"
+author: Cong
+institute: DDS
+pagetitle: "DDS"
+format:
+  revealjs: 
+    slide-number: true
+    slide-level: 4
+    chalkboard: 
+      buttons: false
+    preview-links: auto
+    logo: images/logo.png
+    css: 
+      - https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css
+    footer: <https://www.sanofi.com/en>
+    theme: [default, style.scss]
+resources:
+  - demo.pdf
+---
+
+
+```{r}
+# input your gene here
+target_gene <- 'CAMK4'
+
+stopifnot(nchar(target_gene) != 0)
+```
+
+
+
+#### {.center}
+
+<h1 class="text-indigo-pink">`r target_gene`<h1>
+
+<h2>Explore Gene Expression in scRNA datasets</h2>
+
+::: {style="margin-top:50px"}
+##### Cong Liu {.text-orange-gold}
+
+Data and Digital Science, SIBR
+:::
+
+
+::: aside
+Note: All data is from Talk2data and we are only responsible for organizing it.
+:::
+
+
+#### Summary
+
+<!-- Write your summary here -->
+
+::: goal
+**`r target_gene`** Expression Summary:
+:::
+
+* `r target_gene` is highly
+    + sub-item 1
+    + sub-item 2
+        - sub-sub-item 1
+* `r target_gene` is highly
+    + sub-item 1
+    + sub-item 2
+        - sub-sub-item 1
+
+
+### PBMC {background-color="#7A00E6"}
+
+```{r}
+#| include: false
+
+library(tidyverse)
+```
+
+
+```{r}
+
+# plot GSE expression bar plot
+make_plot <- function(gene, gse) {
+  scgene <- gene
+  scGSE <- gse
+
+  p_data <- extract_gene(gene = scgene,
+                         gse = scGSE
+                         )
+  
+  condition1 <- names(p_data)[[2]]
+  celltype <- names(p_data)[[1]]
+  genemean <- paste0(scgene, "_mean")
+  genelow <- paste0(scgene, "_low")
+  geneup <- paste0(scgene, "_up")
+
+  ggplot(p_data, aes(
+    x = CellType,
+    y = .data[[genemean]],
+    fill = Condition
+  )) +
+    geom_col(position = "dodge") +
+    geom_errorbar(
+      aes(
+        x = CellType,
+        ymin = .data[[genelow]],
+        ymax = .data[[geneup]]
+      ),
+      width = 0.4, colour = "orange",
+      alpha = 0.9, linewidth = 1,
+      position = position_dodge(.9)
+    ) +
+    paletteer::scale_fill_paletteer_d("ggsci::category20_d3") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90))
+}
+
+
+extract_gene <- function(gene, gse) {
+  scgene <- gene
+  scGSE <- gse
+
+  p_data <- vroom::vroom(glue::glue("../data/talk2data/{scGSE}_sc_meanCI.csv"),
+    delim = ",",
+    show_col_types = NULL
+  )
+  condition1 <- names(p_data)[[2]]
+  celltype <- names(p_data)[[1]]
+
+  p_data <- p_data %>%
+    dplyr::select(1:2, starts_with({{ scgene }})) %>%
+    dplyr::rename(
+      "Condition" = all_of(condition1),
+      "CellType" = all_of(celltype)
+    )
+  
+  p_data
+}
+
+```
+
+
+```{r}
+#| eval: false
+
+
+# tidy table
+make_table <- function(gse) {
+  scGSE <- gse
+  ident_name <- "detailed.cell.type...subgroup..standardized."
+  group_name <- "condition...subgroup..standardized."
+
+  table_data <- vroom::vroom(glue::glue("../data/talk2data/metadata/{scGSE}_metadata.csv"))
+
+  table_data %>%
+    dplyr::select({{ ident_name }}, {{ group_name }}) %>%
+    dplyr::rename(
+      "CellType" = {{ ident_name }},
+      "Condition" = {{ group_name }}
+    ) %>%
+    group_by(`CellType`, `Condition`) %>%
+    summarise(n = n()) %>%
+    ungroup() %>%
+    write_excel_csv(glue::glue("../data/talk2data/table/{scGSE}_table.csv"))
+}
+
+
+# make_table(gse = 'GSE163121')
+
+metalist <- read_tsv('../data/talk2data/metadata/GSE_ID.txt', 
+                     col_names = FALSE,
+                     show_col_types = FALSE
+                     ) %>% 
+  pull('X1')
+
+for (i in metalist) {
+  make_table(gse = i)
+}
+```
+
+
+```{r}
+# render table
+
+gsetable <- function(gse) {
+  read_csv(
+    glue::glue("../data/talk2data/table/{gse}_table.csv"),
+    show_col_types = FALSE
+  ) %>% 
+    # knitr::kable(align = "lrr")
+    DT::datatable(
+      options = list(pageLength = 5, dom = 'tip',
+                     # fontSize = '14px',
+                     headerFontSize = '14px',
+                     cellFontSize = '12px'
+                     )
+    )
+}
+```
+
+
+#### **`r target_gene`** Expression distribution in PBMC(PMID35383111) {.smaller}
+
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'PMID35383111'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'PMID35383111')
+```
+
+
+:::
+
+
+::: footer
+Learn more: [talk2data](https://talk2data.pharma.aventis.com/t2d_balancer/)
+:::
+
+
+<!-- Below are the specific projects -->
+
+{{< include _0-IBD.qmd >}}
+
+{{< include _1-COPD.qmd >}}
+
+{{< include _2-SLE.qmd >}}
+
+{{< include _3-psoriasis.qmd >}}
+
+{{< include _4-Others.qmd >}}
+
+
+
+#### {.center background-color="#7A00E6"}
+
+::: {.columns .v-center-container}
+
+::: {.column width="20%"}
+:::
+
+::: {.column width="50%"}
+THANK YOU!!
+:::
+
+:::
+
+
+
+
+

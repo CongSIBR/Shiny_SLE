@@ -1,0 +1,112 @@
+
+
+### Others {background-color="#7A00E6"}
+
+#### Expression distribution of CAMK4 in IPF patients(GSE128033/lung) {.smaller}
+
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE128033'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'GSE128033')
+```
+
+
+:::
+
+
+#### Expression distribution of CAMK4 in Asthma patients(GSE164015/bronchial tube) {.smaller}
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+# make_plot(gene = target_gene,
+#           gse = 'GSE164015'
+#           )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+# gsetable(gse = 'GSE164015')
+```
+
+
+:::
+
+
+#### Expression distribution of CAMK4 in GVHD/sclerosis patients(GSE195452/skin) {.smaller}
+
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE195452'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'GSE195452')
+```
+
+
+:::
+
+#### Expression distribution of CAMK4 in RA(GSE200815) {.smaller}
+
+
+::: {.panel-tabset}
+
+### Expression
+
+```{r}
+make_plot(gene = target_gene,
+          gse = 'GSE200815'
+          )
+```
+
+
+- `r target_gene` expression is enhanced in 
+
+
+### CellCount
+
+```{r}
+gsetable(gse = 'GSE200815')
+```
+
+
+:::
+
+
+
+
