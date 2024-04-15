@@ -9,6 +9,8 @@
 ### Expression
 
 ```{r}
+#| label: PMID35958578
+#| 
 make_plot(gene = target_gene,
           gse = 'PMID35958578'
           )
@@ -37,6 +39,8 @@ gsetable(gse = 'PMID35958578')
 ### Expression
 
 ```{r}
+#| label: GSE194315
+#| 
 make_plot(gene = target_gene,
           gse = 'GSE194315'
           )

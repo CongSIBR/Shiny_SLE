@@ -3,7 +3,8 @@ title: "Gene Expression"
 subtitle: "Explore Gene Expression in scRNA datasets"
 author: Cong
 institute: DDS
-pagetitle: "DDS"
+date: today
+pagetitle: "DDS Reporter"
 format:
   revealjs: 
     slide-number: true
@@ -16,6 +17,8 @@ format:
       - https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css
     footer: <https://www.sanofi.com/en>
     theme: [default, style.scss]
+revealjs-plugins:
+  - pointer
 resources:
   - demo.pdf
 ---
@@ -48,7 +51,7 @@ Note: All data is from Talk2data and we are only responsible for organizing it.
 :::
 
 
-#### Summary
+#### Summary {.smaller}
 
 <!-- Write your summary here -->
 
@@ -56,7 +59,7 @@ Note: All data is from Talk2data and we are only responsible for organizing it.
 **`r target_gene`** Expression Summary:
 :::
 
-hr()
+<hr>
 
 * `r target_gene` is highly
     + sub-item 1
@@ -188,23 +191,36 @@ for (i in metalist) {
 # render table
 
 gsetable <- function(gse) {
-  read_csv(
+  dd <- read_csv(
     glue::glue("../data/talk2data/table/{gse}_table.csv"),
     show_col_types = FALSE
-  ) %>% 
+  )
+
+  dd %>%
     # knitr::kable(align = "lrr")
     DT::datatable(
-      options = list(pageLength = 5, dom = 'tip',
-                     # fontSize = '14px',
-                     headerFontSize = '14px',
-                     cellFontSize = '12px'
-                     )
+      options = list(
+        pageLength = 10, 
+        # dom = "tip",
+        # fontSize = '14px',
+        # headerFontSize = "14px",
+        # cellFontSize = "12px",
+        initComplete = htmlwidgets::JS(
+          "function(settings, json) {",
+          paste0("$(this.api().table().container()).css({'font-size': '", "10px", "'});"),
+          "}"
+        )
+      )
+    ) %>%
+    DT::formatStyle(
+      columns = names(dd),
+      fontSize = "10px"
     )
 }
 ```
 
 
-#### **`r target_gene`** Expression distribution in PBMC(PMID35383111) {.smaller}
+#### **`{r} target_gene`** Expression distribution in PBMC(PMID35383111) {.smaller}
 
 
 ::: {.panel-tabset}
@@ -212,6 +228,8 @@ gsetable <- function(gse) {
 ### Expression
 
 ```{r}
+#| label: PMID35383111
+
 make_plot(gene = target_gene,
           gse = 'PMID35383111'
           )
@@ -224,6 +242,10 @@ make_plot(gene = target_gene,
 ### CellCount
 
 ```{r}
+#| label: tbl-PMID35383111
+#| tbl-cap: "Cell Type Counts"
+
+
 gsetable(gse = 'PMID35383111')
 ```
 

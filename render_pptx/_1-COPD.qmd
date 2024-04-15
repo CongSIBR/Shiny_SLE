@@ -8,6 +8,7 @@
 ### Expression
 
 ```{r}
+#| label: GSE168191
 make_plot(gene = target_gene,
           gse = 'GSE168191'
           )
@@ -36,6 +37,7 @@ gsetable(gse = 'GSE168191')
 ### Expression
 
 ```{r}
+#| label: GSE136831
 make_plot(gene = target_gene,
           gse = 'GSE136831'
           )
@@ -62,6 +64,8 @@ gsetable(gse = 'GSE136831')
 ### Expression
 
 ```{r}
+#| label: GSE173896
+#| 
 make_plot(gene = target_gene,
           gse = 'GSE173896'
           )

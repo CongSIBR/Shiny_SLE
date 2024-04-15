@@ -11,6 +11,9 @@
 ### Expression
 
 ```{r}
+#| label: GSE174188
+
+
 make_plot(gene = target_gene,
           gse = 'GSE174188'
           )
@@ -29,28 +32,61 @@ gsetable(gse = 'GSE174188')
 
 :::
 
-#### Expression distribution of `r target_gene` in SLE(GSE163121) {.smaller}
+#### Expression distribution of `r target_gene` in SLE(GSE163121)
 
-::: {.panel-tabset}
+:::: {.columns}
 
-### Expression
+::: {.column width="60%"}
 
 ```{r}
+#| label: PMID34497389
 make_plot(gene = target_gene,
           gse = 'GSE163121'
           )
 ```
 
+:::
 
-- `r target_gene` expression is enhanced in 
-
-
-### CellCount
+::: {.column width="40%"}
 
 ```{r}
-gsetable(gse = 'GSE163121')
+# gsetable(gse = 'PMID34497389')
+
+gsetable2 <- function(gse) {
+  dd <- read_csv(
+    glue::glue("../data/talk2data/table/{gse}_table.csv"),
+    show_col_types = FALSE
+  ) 
+  
+  dd %>% 
+    # knitr::kable(align = "lrr")
+    DT::datatable(
+      options = list(pageLength = 10, 
+                     # lengthMenu = c(5, 10, 15, 20),
+                     dom = 'tip',
+                     dom = 't',
+                     # fontSize = '10px'
+                     style_cell = list(fontSize = '6px'),
+                     style_header = list(fontSize = '4px'),
+                     initComplete = htmlwidgets::JS(
+          "function(settings, json) {",
+          paste0("$(this.api().table().container()).css({'font-size': '", '6px', "'});"),
+          "}")
+                     )
+    ) %>% 
+    DT::formatStyle(
+      columns = names(dd),
+      fontSize = '6px'
+    )
+}
+
+gsetable2(gse = 'GSE163121')
 ```
 
-
 :::
+
+::::
+
+
+- `r target_gene` expression is enhanced in
 

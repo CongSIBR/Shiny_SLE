@@ -11,9 +11,9 @@
 ```
 
 
-:::: {.columns}
+::: {.panel-tabset}
 
-::: {.column width="60%"}
+### Expression
 
 ```{r}
 make_plot(gene = target_gene,
@@ -21,20 +21,17 @@ make_plot(gene = target_gene,
           )
 ```
 
-:::
+- `r target_gene` expression is enhanced in 
 
-::: {.column width="40%"}
+
+### CellCount
 
 ```{r}
 gsetable(gse = 'PMID34497389')
 ```
 
+
 :::
-
-::::
-
-
-- `r target_gene` expression is enhanced in
 
 
 #### Expression distribution of `r target_gene` in IBD patient samples {.smaller}
@@ -46,6 +43,9 @@ gsetable(gse = 'PMID34497389')
 ### Expression
 
 ```{r}
+#| label: GSE164985
+
+
 make_plot(gene = target_gene,
           gse = 'GSE164985'
           )
@@ -73,6 +73,8 @@ gsetable(gse = 'GSE164985')
 ### Expression
 
 ```{r}
+#| label: GSE202052
+#| 
 make_plot(gene = target_gene,
           gse = 'GSE202052'
           )
@@ -100,6 +102,8 @@ gsetable(gse = 'GSE202052')
 ### Expression
 
 ```{r}
+#| label: GSE125527
+#| 
 make_plot(gene = target_gene,
           gse = 'GSE125527'
           )
