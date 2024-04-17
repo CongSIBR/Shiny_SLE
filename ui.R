@@ -18,7 +18,8 @@ library(plotly)
 # UI ----------------------------------------------------------------------
 
 
-ui <- navbarPage("SIBR Expression Explorer",
+ui <- navbarPage(
+  "SIBR Expression Explorer",
   # theme = shinythemes::themeSelector(),
   # theme = shinythemes::shinytheme("united"),
   theme = bslib::bs_theme(
@@ -132,17 +133,17 @@ ui <- navbarPage("SIBR Expression Explorer",
           value = "CAMK4"
         ),
         
-        # actionButton(
-        #   inputId = "click2",
-        #   label = "Click!"
-        # ),
+        actionButton(
+          inputId = "click2",
+          label = "Input Gene!"
+        ),
         
         tags$br(),
         
         selectInput(
           inputId = "singleGSE",
           label = "Choose GSE:",
-          choices = chioce2
+          choices = chioce_IBD
         ),
         width = 3
       ),
@@ -156,12 +157,13 @@ ui <- navbarPage("SIBR Expression Explorer",
         column(
           8,
           tabsetPanel(
-            tabPanel("Plot", plotOutput("scPlot1",
+            tabPanel("Plot", plotlyOutput("scPlot1",
                                         # width = '60%'
                                         width = 800,
                                         height = 600
             )),
-            # tabPanel("Summary", uiOutput("text1"))
+            tabPanel("CellCount", DT::dataTableOutput("scTable1")),
+            tabPanel("StudyMeta", reactable::reactableOutput("scST1"))
           )
         )
       )
@@ -183,26 +185,146 @@ ui <- navbarPage("SIBR Expression Explorer",
         selectInput(
           inputId = "singleGSE2", 
           label = "Choose GSE:",
-          choices = chioce2
-        )
+          choices = chioce_SLE
+        ),
+        
+        actionButton(
+          inputId = "click3",
+          label = "Show SLE!"
+        ),
       ),
       column(
         8,
         tabsetPanel(
-          tabPanel("Plot", plotOutput("scPlot2",
+          tabPanel("Plot", plotlyOutput("scPlot2",
                                       # width = '60%'
                                       width = 800,
                                       height = 600
           )),
-          tabPanel("Summary")
+          tabPanel("CellCount", DT::dataTableOutput("scTable2")),
+          tabPanel("StudyMeta", reactable::reactableOutput("scST2"))
         )
       )
     ),
     
     hr(),
     
+    fluidRow(column(8,
+                    h3("Gene Expression in COPD studies"),
+                    offset = 3
+    )),
+    
+    tags$br(),
+    
+    fluidRow(
+      column(
+        3,
+        h5("Select different GSE"),
+        selectInput(
+          inputId = "singleGSE3", 
+          label = "Choose GSE:",
+          choices = chioce_COPD
+        ),
+        
+        actionButton(
+          inputId = "click4",
+          label = "Show COPD!"
+        ),
+      ),
+      column(
+        8,
+        tabsetPanel(
+          tabPanel("Plot", plotlyOutput("scPlot3",
+                                      # width = '60%'
+                                      width = 800,
+                                      height = 600
+          )),
+          tabPanel("CellCount", DT::dataTableOutput("scTable3")),
+          tabPanel("StudyMeta", reactable::reactableOutput("scST3"))
+        )
+      )
+    ),
+    
+    hr(),
+    
+    fluidRow(column(8,
+                    h3("Gene Expression in Psoriasis studies"),
+                    offset = 3
+    )),
+    
+    tags$br(),
+    
+    fluidRow(
+      column(
+        3,
+        h5("Select different GSE"),
+        selectInput(
+          inputId = "singleGSE4", 
+          label = "Choose GSE:",
+          choices = chioce_Psoriasis
+        ),
+        
+        actionButton(
+          inputId = "click5",
+          label = "Show Psoriasis!"
+        ),
+      ),
+      column(
+        8,
+        tabsetPanel(
+          tabPanel("Plot", plotlyOutput("scPlot4",
+                                      # width = '60%'
+                                      width = 800,
+                                      height = 600
+          )),
+          tabPanel("CellCount", DT::dataTableOutput("scTable4")),
+          tabPanel("StudyMeta", reactable::reactableOutput("scST4"))
+        )
+      )
+    ),
+    
+    
+    hr(),
+    
+    fluidRow(column(8,
+                    h3("Gene Expression in Other studies"),
+                    offset = 3
+    )),
+    
+    tags$br(),
+    
+    fluidRow(
+      column(
+        3,
+        h5("Select different GSE"),
+        selectInput(
+          inputId = "singleGSE5", 
+          label = "Choose GSE:",
+          choices = chioce_Others
+        ),
+        
+        actionButton(
+          inputId = "click6",
+          label = "Show Others!"
+        ),
+      ),
+      column(
+        8,
+        tabsetPanel(
+          tabPanel("Plot", plotlyOutput("scPlot5",
+                                      # width = '60%'
+                                      width = 800,
+                                      height = 600
+          )),
+          tabPanel("CellCount", DT::dataTableOutput("scTable5")),
+          tabPanel("StudyMeta", reactable::reactableOutput("scST5"))
+        )
+      )
+    ),
+    
   ),
 
+  
   # UI for IBD
 
   tabPanel(
@@ -270,3 +392,13 @@ ui <- navbarPage("SIBR Expression Explorer",
     tabPanel("Others")
   )
 )
+
+
+ui <- tagList(
+  shiny.info::version(position = "bottom right"),
+  shiny.info::powered_by("DDS-SIBR", link = "https://www.sanofi.com/"),
+  shiny.info::busy(),
+  ui
+)
+
+

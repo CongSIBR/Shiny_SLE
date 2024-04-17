@@ -1,6 +1,8 @@
 
 
 
+VERSION <- "0.0.2"
+
 # read file global --------------------------------------------------------
 
 
@@ -11,7 +13,8 @@ combined_DESeq2_res <- readRDS('./data/combined_DESeq2_res.rds')
 
 
 hpa_transcript_rna_immunecells <- readr::read_csv(
-  './data/HPA/hpa_transcript_rna_immunecells.csv'
+  './data/HPA/hpa_transcript_rna_immunecells.csv',
+  show_col_types = FALSE
 )
 
 # 从以前文件拷过来的
@@ -50,6 +53,19 @@ gse_annotation <-
     )
   )
 
+
+
+# scRNA GSE number
+
+chioce_IBD <- c('PMID34497389', 'GSE164985', 'GSE202052', 'GSE125527')
+chioce_SLE <- c('GSE174188', 'GSE163121')
+chioce_Psoriasis <- c('PMID35958578', 'GSE194315')
+chioce_COPD <- c('GSE168191', 'GSE136831', 'GSE173896')
+chioce_Others <- c('PMID35383111', 'GSE128033', 'GSE195452', 'GSE200815')
+
+
+st <- readxl::read_excel("./data/talk2data/scRNA_metadata.xlsx"
+                         )
 
 
 # function for sever ------------------------------------------------------

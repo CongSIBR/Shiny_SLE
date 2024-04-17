@@ -1,10 +1,10 @@
 # library packages --------------------------------------------------------
 
-
-library(tidyverse)
+suppressPackageStartupMessages(library(tidyverse))
 
 library(shiny)
 library(plotly)
+# library(reactablefmtr)
 
 
 # load pandaomics data ----------------------------------------------------
@@ -155,10 +155,10 @@ server <- function(input, output, session) {
         as_tibble() %>%
         left_join(df_meta, by = c("rowname" = "name"))
 
-      ggplot(df_p, aes_string(
-        x = "Cell_Type",
-        y = geneSym,
-        fill = "Disease"
+      ggplot(df_p, aes(
+        x = Cell_Type,
+        y = .data[[geneSym]],
+        fill = Disease
       )) +
         geom_boxplot() +
         ggtitle(label = gse) +
@@ -181,10 +181,10 @@ server <- function(input, output, session) {
         as_tibble() %>%
         left_join(df_meta, by = c("rowname" = "name"))
 
-      ggplot(df_p, aes_string(
-        x = "Source",
-        y = geneSym,
-        fill = "Disease"
+      ggplot(df_p, aes(
+        x = Source,
+        y = .data[[geneSym]],
+        fill = Disease
       )) +
         geom_boxplot() +
         ggtitle(label = gse) +
@@ -365,9 +365,10 @@ server <- function(input, output, session) {
 
     ggplot(
       top_gene_df,
-      aes_string(
-        x = "group", y = geneSym,
-        color = "group"
+      aes(
+        x = group, 
+        y = .data[[geneSym]],
+        color = group
       )
     ) +
       geom_jitter(width = 0.2, height = 0) +
@@ -390,7 +391,7 @@ server <- function(input, output, session) {
       filter(SYMBOL == geneSym) %>%
       dplyr::select(enstid, starts_with("TPM")) %>%
       column_to_rownames("enstid") -> M
-    
+
     if (!is.data.frame(M)) {
       validate(paste0("'", geneSym, "' is not a data frame"))
     }
@@ -435,9 +436,8 @@ server <- function(input, output, session) {
 
 
   output$hpa_isoform_immuncells_p2 <- renderPlot({
-    
     geneSym <- input$hpa_trans_gene |> toupper()
-    
+
     colors_f <- circlize::colorRamp2(c(-3, 0, 3),
       c("navy", "white", "firebrick3"),
       transparency = 0
@@ -468,38 +468,41 @@ server <- function(input, output, session) {
       # }
     )
   })
-  
-  
+
+
   output$hpa_isoform_immuncells_p3 <- renderPlot({
-    
     M2 <- log2(hpa_isoform_immuncells_M() + 1)
-    
+
     # M2 <- M2[rowSums(M2) > 1, ]
     keep <- rowSums(M2 >= 1) >= 3
     M2 <- M2[keep, ]
-    
-    M2 %>% rownames_to_column() %>% 
-      pivot_longer(cols = -rowname) %>% 
-      distinct() %>% 
-      separate_wider_delim(cols = name, delim = '.',
-                           names = c('foo',  'celltype', 'sample'),
-                           cols_remove = FALSE
+
+    M2 %>%
+      rownames_to_column() %>%
+      pivot_longer(cols = -rowname) %>%
+      distinct() %>%
+      separate_wider_delim(
+        cols = name, delim = ".",
+        names = c("foo", "celltype", "sample"),
+        cols_remove = FALSE
       ) -> df_p2
-    
-    ggplot(df_p2, aes(x = celltype, y = value, 
-                      fill = rowname,
-                      color = rowname)) +
+
+    ggplot(df_p2, aes(
+      x = celltype, y = value,
+      fill = rowname,
+      color = rowname
+    )) +
       geom_boxplot() +
       ggprism::theme_prism() +
       ggprism::scale_colour_prism(palette = "colors") +
       ggprism::scale_fill_prism(palette = "colors") +
       theme(axis.text.x = element_text(angle = 90)) +
-      ylab('logTPM') -> p2
-    
+      ylab("logTPM") -> p2
+
     p2
   })
-  
-  
+
+
   output$download1 <- downloadHandler(
     filename = function() {
       paste0(input$hpa_trans_gene, ".csv")
@@ -508,50 +511,289 @@ server <- function(input, output, session) {
       write.csv(hpa_isoform_immuncells_M(), file)
     }
   )
-  
-  
+
+
   # scRNA ---------------------------------------------
-  
-  output$scPlot1 <- renderPlot({
-    
-    scgene <- input$GeneName |> toupper()
-    scGSE <- input$singleGSE
-    
-    p_data <- vroom::vroom(glue::glue('~/Downloads/{scGSE}_sc_meanCI.csv'),
-                           delim = ',',
-                           show_col_types = NULL
-                           )
+
+  # Sys.setenv("VROOM_CONNECTION_SIZE"=131072*20)
+
+  make_gse_plot <- function(scgene, scGSE) {
+    p_data <- vroom::vroom(glue::glue("./data/talk2data/{scGSE}_sc_meanCI.csv"),
+      delim = ",",
+      show_col_types = FALSE
+    )
     condition1 <- names(p_data)[[2]]
     celltype <- names(p_data)[[1]]
-    genemean <- paste0(scgene, '_mean')
-    genelow <- paste0(scgene, '_low')
-    geneup <- paste0(scgene, '_up')
-    
-    p_data <- p_data %>% 
-      dplyr::select(1:2, starts_with({{scgene}})) %>% 
-      dplyr::rename('Condition' = all_of(condition1),
-                    'CellType' = all_of(celltype)
-                    )
-    
-    ggplot(p_data, aes(x = CellType, 
-                       y = .data[[genemean]], 
-                       fill = Condition)) +
-      geom_col(position = 'dodge') +
-      geom_errorbar(aes(x = CellType, 
-                        ymin = .data[[genelow]], 
-                        ymax = .data[[geneup]]),
-                    width=0.4, colour="orange", 
-                    alpha=0.9, linewidth=1,
-                    position = position_dodge(.9)
+    genemean <- paste0(scgene, "_mean")
+    genelow <- paste0(scgene, "_low")
+    geneup <- paste0(scgene, "_up")
+
+    p_data <- p_data %>%
+      dplyr::select(1:2, starts_with({{ scgene }})) %>%
+      dplyr::rename(
+        "Condition" = all_of(condition1),
+        "CellType" = all_of(celltype)
+      )
+
+    scpp <- ggplot(p_data, aes(
+      x = CellType,
+      y = .data[[genemean]],
+      fill = Condition
+    )) +
+      geom_col(position = "dodge") +
+      geom_errorbar(
+        aes(
+          x = CellType,
+          ymin = .data[[genelow]],
+          ymax = .data[[geneup]]
+        ),
+        width = 0.4, colour = "orange",
+        alpha = 0.9, linewidth = 1,
+        position = position_dodge(.9)
       ) +
-      paletteer::scale_fill_paletteer_d('ggsci::category20_d3') +
+      paletteer::scale_fill_paletteer_d("ggsci::category20_d3") +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 90))
-    
-    
+
+    # scpp
+
+    plotly::ggplotly(scpp)
+  }
+
+
+  # IBD
+  scgene_event <- eventReactive(input$click2, {
+    input$GeneName
   })
-  
-  
+
+  output$scPlot1 <- renderPlotly({
+    scgene <- scgene_event() |> toupper()
+    scGSE <- input$singleGSE
+
+    make_gse_plot(
+      scgene = scgene,
+      scGSE = scGSE
+    )
+  })
+
+
+  # SLE
+  scgene_event3 <- eventReactive(input$click3, {
+    input$singleGSE2
+  })
+
+  output$scPlot2 <- renderPlotly({
+    scgene <- scgene_event() |> toupper()
+    scGSE <- scgene_event3()
+
+    make_gse_plot(
+      scgene = scgene,
+      scGSE = scGSE
+    )
+  })
+
+
+  # COPD
+  scgene_event4 <- eventReactive(input$click4, {
+    input$singleGSE3
+  })
+
+  output$scPlot3 <- renderPlotly({
+    scgene <- scgene_event() |> toupper()
+    scGSE <- scgene_event4()
+
+    make_gse_plot(
+      scgene = scgene,
+      scGSE = scGSE
+    )
+  })
+
+
+  # Psoriasis
+  scgene_event5 <- eventReactive(input$click5, {
+    input$singleGSE4
+  })
+
+  output$scPlot4 <- renderPlotly({
+    scgene <- scgene_event() |> toupper()
+    scGSE <- scgene_event5()
+
+    make_gse_plot(
+      scgene = scgene,
+      scGSE = scGSE
+    )
+  })
+
+
+  # Others
+  scgene_event6 <- eventReactive(input$click6, {
+    input$singleGSE5
+  })
+
+  output$scPlot5 <- renderPlotly({
+    scgene <- scgene_event() |> toupper()
+    scGSE <- scgene_event6()
+
+    make_gse_plot(
+      scgene = scgene,
+      scGSE = scGSE
+    )
+  })
+
+
+  read_meta_table <- function(scGSE) {
+    dd <- read_csv(
+      glue::glue("./data/talk2data/table/{scGSE}_table.csv"),
+      show_col_types = FALSE
+    )
+
+    dd
+  }
+
+
+  output$scTable1 <- DT::renderDataTable({
+    scGSE <- input$singleGSE
+
+    dd <- read_meta_table(scGSE = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+
+  output$scTable2 <- DT::renderDataTable({
+    scGSE <- input$singleGSE2
+
+    dd <- read_meta_table(scGSE = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+  output$scTable3 <- DT::renderDataTable({
+    scGSE <- input$singleGSE3
+
+    dd <- read_meta_table(scGSE = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+  output$scTable4 <- DT::renderDataTable({
+    scGSE <- input$singleGSE4
+
+    dd <- read_meta_table(scGSE = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+
+  output$scTable5 <- DT::renderDataTable({
+    scGSE <- input$singleGSE5
+
+    dd <- read_meta_table(scGSE = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+
+  read_summary_table <- function(gse) {
+    df <- st %>%
+      filter(GSE_Num == {{ gse }}) %>%
+      mutate(across(everything(), as.character)) %>%
+      pivot_longer(
+        cols = everything(),
+        values_to = "Value"
+      )
+
+    reactable::reactable(df,
+      highlight = TRUE,
+      searchable = TRUE,
+      wrap = TRUE,
+      columns = list(
+        Value = reactable::colDef(
+          cell = function(value) {
+            if (value == df$Value[4]) {
+              div(
+                style = list(
+                  "max-height" = "80px",
+                  "overflow" = "hidden"
+                ),
+                # value,
+                a(
+                  href = "#",
+                  onclick = "this.parentNode.style.maxHeight = null; this.style.display = 'none'",
+                  "Show more"
+                ),
+                value
+              )
+            } else {
+              value
+            }
+          }, minWidth = 200
+        ),
+        name = reactable::colDef(minWidth = 100)
+      )
+    )
+  }
+
+
+  output$scST1 <- reactable::renderReactable({
+    scGSE <- input$singleGSE
+
+    dd <- read_summary_table(gse = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+  output$scST2 <- reactable::renderReactable({
+    scGSE <- input$singleGSE2
+
+    dd <- read_summary_table(gse = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+  output$scST3 <- reactable::renderReactable({
+    scGSE <- input$singleGSE3
+
+    dd <- read_summary_table(gse = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+  output$scST4 <- reactable::renderReactable({
+    scGSE <- input$singleGSE4
+
+    dd <- read_summary_table(gse = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
+
+  output$scST5 <- reactable::renderReactable({
+    scGSE <- input$singleGSE5
+
+    dd <- read_summary_table(gse = scGSE)
+
+    # dd %>% DT::datatable()
+
+    dd
+  })
 
   ## mail-----------------------------
 
@@ -572,5 +814,3 @@ server <- function(input, output, session) {
     }
   })
 }
-
-
