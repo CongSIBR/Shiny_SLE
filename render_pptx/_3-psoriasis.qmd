@@ -6,7 +6,7 @@
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: PMID35958578
@@ -20,10 +20,17 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 gsetable(gse = 'PMID35958578')
+```
+
+
+##### StudyMeta
+
+```{r}
+make_st('PMID35958578')
 ```
 
 
@@ -36,7 +43,7 @@ gsetable(gse = 'PMID35958578')
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: GSE194315
@@ -50,10 +57,17 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 gsetable(gse = 'GSE194315')
+```
+
+
+##### StudyMeta
+
+```{r}
+make_st('GSE194315')
 ```
 
 

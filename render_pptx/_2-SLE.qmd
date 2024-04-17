@@ -8,7 +8,7 @@
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: GSE174188
@@ -23,14 +23,22 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 gsetable(gse = 'GSE174188')
 ```
 
 
+##### StudyMeta
+
+```{r}
+make_st('GSE174188')
+```
+
+
 :::
+
 
 #### Expression distribution of `r target_gene` in SLE(GSE163121)
 

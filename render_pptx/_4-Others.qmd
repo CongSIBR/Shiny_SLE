@@ -7,7 +7,7 @@
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: GSE128033
@@ -21,10 +21,17 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 gsetable(gse = 'GSE128033')
+```
+
+
+##### StudyMeta
+
+```{r}
+make_st('GSE128033')
 ```
 
 
@@ -35,7 +42,7 @@ gsetable(gse = 'GSE128033')
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 # make_plot(gene = target_gene,
@@ -47,7 +54,7 @@ gsetable(gse = 'GSE128033')
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 # gsetable(gse = 'GSE164015')
@@ -62,7 +69,7 @@ gsetable(gse = 'GSE128033')
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: GSE195452
@@ -76,10 +83,17 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 gsetable(gse = 'GSE195452')
+```
+
+
+##### StudyMeta
+
+```{r}
+make_st('GSE195452')
 ```
 
 
@@ -90,7 +104,7 @@ gsetable(gse = 'GSE195452')
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: GSE200815
@@ -104,10 +118,17 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 gsetable(gse = 'GSE200815')
+```
+
+
+##### StudyMeta
+
+```{r}
+make_st('GSE200815')
 ```
 
 

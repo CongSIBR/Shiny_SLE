@@ -102,7 +102,7 @@ make_plot <- function(gene, gse) {
   genelow <- paste0(scgene, "_low")
   geneup <- paste0(scgene, "_up")
 
-  ggplot(p_data, aes(
+  sc_pp <- ggplot(p_data, aes(
     x = CellType,
     y = .data[[genemean]],
     fill = Condition
@@ -121,6 +121,10 @@ make_plot <- function(gene, gse) {
     paletteer::scale_fill_paletteer_d("ggsci::category20_d3") +
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90))
+  
+  sc_pp
+  
+  # plotly::ggplotly(scpp)
 }
 
 
@@ -217,7 +221,84 @@ gsetable <- function(gse) {
       fontSize = "10px"
     )
 }
+
+
+# 感觉reactable更易于使用
+# gsetable <- function(gse) {
+#   dd <- read_csv(
+#     glue::glue("../data/talk2data/table/{gse}_table.csv"),
+#     show_col_types = FALSE
+#   )
+#   
+#   reactable::reactable(dd,
+#                        highlight = TRUE,
+#                        searchable = TRUE,
+#                        theme = reactable::reactableTheme(
+#                          style = list(fontSize = '10px')
+#                        )
+#                        )
+# }
 ```
+
+
+```{r}
+# summary table
+
+st <- readxl::read_excel("../data/talk2data/scRNA_metadata.xlsx")
+
+make_st <- function(gse) {
+  df <- st %>%
+    filter(GSE_Num == {{ gse }}) %>%
+    mutate(across(everything(), as.character)) %>%
+    pivot_longer(cols = everything())
+  
+  reactable::reactable(
+    df,
+    highlight = TRUE,
+    searchable = TRUE,
+    wrap = TRUE,
+    theme = reactable::reactableTheme(
+      style = list(fontSize = "12px")
+    ),
+    # details = function(index) {
+    #   if (index == 4) {
+    #     htmltools::tagList(
+    #       htmltools::tags$details(
+    #         htmltools::tags$summary("Show Full text"),
+    #         df$value[index]
+    #       )
+    #     )
+    #   }
+    # }
+    columns = list(
+            value = colDef(
+              cell = function(value) {
+                if (value == df$value[4]) {
+                  div(
+                    style = list(
+                      "max-height" = "20px",
+                      "overflow" = "hidden"
+                    ),
+                    # value,
+                    a(
+                      href = "#",
+                      onclick = "this.parentNode.style.maxHeight = null; this.style.display = 'none'",
+                      "Show more"
+                    ),
+                    value
+                  )
+                } else {
+                  value
+                }
+              }
+            )
+          )
+  )
+}
+
+# make_st('PMID35383111')
+```
+
 
 
 #### **`{r} target_gene`** Expression distribution in PBMC(PMID35383111) {.smaller}
@@ -225,7 +306,7 @@ gsetable <- function(gse) {
 
 ::: {.panel-tabset}
 
-### Expression
+##### Expression
 
 ```{r}
 #| label: PMID35383111
@@ -239,7 +320,7 @@ make_plot(gene = target_gene,
 - `r target_gene` expression is enhanced in 
 
 
-### CellCount
+##### CellCount
 
 ```{r}
 #| label: tbl-PMID35383111
@@ -248,6 +329,14 @@ make_plot(gene = target_gene,
 
 gsetable(gse = 'PMID35383111')
 ```
+
+
+##### StudyMeta
+
+```{r}
+make_st('PMID35383111')
+```
+
 
 :::
 
