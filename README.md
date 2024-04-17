@@ -6,4 +6,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of Shiny_SLE is to bulid a Shiny APP.
+The goal of Shiny_SLE is to bulid a Shiny APP which will be used for
+querying gene expression.
+
+Here, we offered datasets from bulk-RNASeq data and scRNASeq data.
